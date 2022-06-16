@@ -1,6 +1,7 @@
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'date'
 
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
@@ -53,19 +54,35 @@ contents = CSV.open(
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
+hours_of_registration = []
+
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
+
+  reg_datetime = Time.strptime(row[:regdate], '%m/%d/%y %k:%M')
+
+  
+  hours_of_registration.push(reg_datetime.hour)
 
   zipcode = clean_zipcode(row[:zipcode])
 
   phone_number = clean_phone_number(row[:homephone])
 
-  legislators = legislators_by_zipcode(zipcode)
+  # legislators = legislators_by_zipcode(zipcode)
 
-  form_letter = erb_template.result(binding)
+  # form_letter = erb_template.result(binding)
 
-  save_thank_you_letter(id, form_letter)  
+  # save_thank_you_letter(id, form_letter)  
 end
+
+# Creates hash where key is the hour and value is the number of users registered on that hour
+registration_hours = hours_of_registration.inject({}) do |hsh, hour|
+  hsh[hour] ||= 0
+  hsh[hour] += 1
+  hsh
+end
+
+p registration_hours
 
 
