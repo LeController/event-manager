@@ -55,15 +55,25 @@ template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
 hours_of_registration = []
+days_of_registration = []
 
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
 
   reg_datetime = Time.strptime(row[:regdate], '%m/%d/%y %k:%M')
-
   
   hours_of_registration.push(reg_datetime.hour)
+
+  days = {0 => "Sunday",
+    1 => "Monday", 
+    2 => "Tuesday",
+    3 => "Wednesday",
+    4 => "Thursday",
+    5 => "Friday",
+    6 => "Saturday"}
+    
+  days_of_registration.push(days[reg_datetime.wday])
 
   zipcode = clean_zipcode(row[:zipcode])
 
@@ -82,7 +92,12 @@ registration_hours = hours_of_registration.inject({}) do |hsh, hour|
   hsh[hour] += 1
   hsh
 end
+# Creates hash where key is the day and value is the number of users registered on that day
+registration_days = days_of_registration.inject({}) do |hsh, day|
+  hsh[day] ||= 0
+  hsh[day] += 1
+  hsh
+end
 
 p registration_hours
-
-
+p registration_days
