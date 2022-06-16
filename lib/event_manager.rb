@@ -56,11 +56,10 @@ erb_template = ERB.new template_letter
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
-  phone_number = row[:homephone]
 
   zipcode = clean_zipcode(row[:zipcode])
 
-  phone_number = clean_phone_number(phone_number)
+  phone_number = clean_phone_number(row[:homephone])
 
   legislators = legislators_by_zipcode(zipcode)
 
